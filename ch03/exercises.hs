@@ -83,3 +83,25 @@ turn p1 p2 p3
     v1 = fromPoints p1 p2
     v2 = fromPoints p2 p3
     theta = angle v1 v2
+
+-- from https://codereview.stackexchange.com/questions/206019/graham-scan-algorithm-in-haskell
+convexHull :: (Num a, Ord a) => [(a, a)] -> [(a, a)]
+convexHull points
+  | length sorted <= 2 = sorted
+  | otherwise = init (grahamScan sorted) ++ init (grahamScan $ reverse sorted)
+  where
+    sorted = map head $ group $ sort points
+
+grahamScan :: (Num a, Ord a) => [(a, a)] -> [(a, a)]
+grahamScan = foldr push []
+  where
+    push point stack = grahamEliminate (point : stack)
+
+grahamEliminate :: (Num a, Ord a) => [(a, a)] -> [(a, a)]
+grahamEliminate (p1:p2:p3:stack)
+  | doubleArea p1 p2 p3 <= 0 = grahamEliminate (p1 : p3 : stack)
+grahamEliminate stack = stack
+
+doubleArea :: Num a => (a, a) -> (a, a) -> (a, a) -> a
+doubleArea (x1, y1) (x2, y2) (x3, y3) =
+  (x2 - x1) * (y3 - y1) * (y3 - y1) - (y2 - y1) * (x3 - x1)
