@@ -1,4 +1,4 @@
-import Data.Char (digitToInt, isDigit)
+import Data.Char (digitToInt, isDigit, isSpace)
 import Data.Maybe
 
 -- Ex 1.1
@@ -85,3 +85,33 @@ notMyTakeWhile p xs = foldr step [] xs
     step x ys
       | p x = x : ys
       | otherwise = []
+
+-- Ex 2.5
+groupBy :: (a -> a -> Bool) -> [a] -> [[a]]
+groupBy pred = foldr (groupByHelper pred) []
+
+groupByHelper :: (a -> a -> Bool) -> a -> [[a]] -> [[a]]
+groupByHelper pred v acc
+  | null acc = [[v]]
+  | null (head acc) = [v] : tail acc
+  | pred v (head (head acc)) = (v : head acc) : tail acc
+  | otherwise = [v] : acc
+
+-- Ex 2.6
+any' :: (a -> Bool) -> [a] -> Bool
+any' pred = foldr (\x acc -> acc || pred x) False
+
+cycle' :: [a] -> [a]
+cycle' xs = foldr (\x acc -> xs ++ acc) [] [1 ..]
+
+words' :: String -> [String]
+words' =
+  foldr
+    (\c acc ->
+       if isSpace c
+         then [] : acc
+         else (c : head acc) : tail acc)
+    [[]]
+
+unlines' :: [String] -> String
+unlines' = foldr (\s acc -> acc ++ s ++ "\n") ""
